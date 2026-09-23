@@ -1,0 +1,81 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1c1c1e;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --border: #e5e7eb;
+  --danger: #dc2626;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111214;
+    --fg: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #60a5fa;
+    --border: #2a2c30;
+    --danger: #f87171;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  margin: 0;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.topbar .brand { font-weight: 600; color: var(--fg); text-decoration: none; }
+.topbar nav a { margin-left: 16px; color: var(--accent); text-decoration: none; }
+main { max-width: 960px; margin: 0 auto; padding: 24px; }
+h1 { font-size: 1.4rem; }
+h2 { font-size: 1.1rem; margin-top: 2rem; }
+fieldset { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; padding: 12px 16px; }
+legend { padding: 0 6px; color: var(--muted); }
+.field { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; max-width: 320px; }
+.field input { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--fg); }
+.field small { color: var(--muted); }
+button { background: var(--accent); color: white; border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 0.95rem; }
+button:hover { opacity: 0.9; }
+.link-btn { background: none; border: none; color: var(--danger); padding: 0; font-size: 0.85rem; cursor: pointer; text-decoration: underline; }
+.hint { color: var(--muted); font-size: 0.9rem; }
+.error { color: var(--danger); }
+.progress-outer { background: var(--border); border-radius: 8px; height: 18px; overflow: hidden; }
+.progress-inner { background: var(--accent); height: 100%; transition: width 0.3s ease; }
+pre#stdout-tail { background: var(--border); padding: 12px; border-radius: 6px; max-height: 300px; overflow: auto; font-size: 0.8rem; }
+.runs-table { width: 100%; border-collapse: collapse; }
+.runs-table th, .runs-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.run-name-row { display: flex; align-items: center; gap: 4px; }
+.run-name { font-weight: 500; }
+.rename-details { position: relative; }
+.rename-details > summary { list-style: none; }
+.rename-details > summary::-webkit-details-marker { display: none; }
+.rename-details[open] > summary { color: var(--accent); }
+.rename-details .rename-form { display: flex; gap: 4px; align-items: center; position: absolute; top: 100%; left: 0; z-index: 1; margin-top: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 4px; }
+.rename-form input { padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--fg); }
+.run-id-hint { display: block; margin-top: 2px; color: var(--muted); font-size: 0.8rem; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; border: none; border-radius: 6px; background: none; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { background: var(--border); color: var(--fg); opacity: 1; }
+.icon-btn svg { width: 15px; height: 15px; }
+.icon-btn.icon-danger { color: var(--danger); }
+.icon-btn.icon-danger:hover { background: var(--danger); color: #fff; }
+.params-table { border-collapse: collapse; }
+.params-table td { padding: 3px 14px 3px 0; }
+.params-table td:first-child { color: var(--muted); }
+.param-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+.param-groups fieldset { margin-bottom: 0; }
+@media (max-width: 700px) { .param-groups { grid-template-columns: 1fr; } }
+.badge { padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; }
+.badge-running { background: #fef3c7; color: #92400e; }
+.badge-completed { background: #d1fae5; color: #065f46; }
+.badge-failed { background: #fee2e2; color: #991b1b; }
+.controls { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.controls input[type=range] { flex: 1; }
+.plot { width: 100%; height: 360px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid2 .plot { height: 280px; }

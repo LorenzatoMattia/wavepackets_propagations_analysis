@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}Configure run — M_LARA{% endblock %}
+{% block content %}
+<h1>Configure &amp; launch a run</h1>
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+<form method="post" action="{{ url_for('launch') }}">
+  {% for group in groups %}
+  <fieldset>
+    <legend>{{ group.name }}</legend>
+    {% if group.name.startswith('Override') %}
+    <p class="hint">Leave blank to auto-compute. Only fill in to bypass that and set the wavepacket's momentum/width
+      directly.</p>
+    {% endif %}
+    {% for f in group.fields %}
+    <label class="field">
+      <span>{{ f.label }} <small>({{ f.unit }})</small></span>
+      {% if f.default is none %}
+      <input type="number" step="any" name="{{ f.key }}" placeholder="auto">
+      {% else %}
+      <input type="number" step="any" name="{{ f.key }}" value="{{ f.default }}" required>
+      {% endif %}
+    </label>
+    {% endfor %}
+  </fieldset>
+  {% endfor %}
+
+  <fieldset>
+    <legend>Current build (compile-time, read-only)</legend>
+    <p class="hint">
+      Time steps: <b>{{ build_info.ntimes }}</b> &middot;
+      Position grid points: <b>{{ build_info.npun1 }}</b> &middot;
+      Energy grid points: <b>{{ build_info.netot }}</b> &middot;
+      Auxiliary grid points: <b>{{ build_info.npunt }}</b>
+    </p>
+    <p class="hint">Changing these requires editing <code>locales.parameter.h</code> and recompiling.</p>
+  </fieldset>
+
+  <button type="submit">Launch simulation</button>
+</form>
+{% endblock %}

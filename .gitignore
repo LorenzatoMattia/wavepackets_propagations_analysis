@@ -1,0 +1,24 @@
+runs/
+webui/__pycache__/
+webui/flask.log
+__pycache__/
+*.pyc
+.pytest_cache/
+__todo.md
+docs/engine/*.exe
+docs/engine/*.o
+
+# Fortran reference program + binaries: course material, not distributed
+# (see README). The local webui expects them in fortran/.
+fortran/
+*.f
+*.exe
+*.dll
+*.a
+
+# WASM engine: built by CI (.github/workflows/pages.yml) from engine.c
+docs/engine.js
+docs/engine.wasm
+
+# Local Claude Code / ECC tooling
+.claude/

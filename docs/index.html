@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wavepacket Propagation Analysis — browser build</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="plotly.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" id="nav-brand">Wavepacket Propagation Analysis — runs entirely in your browser</a>
+    <nav>
+      <a href="#" id="nav-runs">Saved runs</a>
+      <a href="#" id="nav-new">New run</a>
+    </nav>
+  </header>
+  <main>
+
+    <section id="view-runs">
+      <h1>Saved runs</h1>
+      <p class="hint">Simulations run entirely in your browser (WebAssembly) and are saved locally in this browser only — nothing is uploaded anywhere.</p>
+      <table class="runs-table" id="runs-table">
+        <thead>
+          <tr><th>Run</th><th>Collision energy (cm-1)</th><th>Saved</th><th></th></tr>
+        </thead>
+        <tbody id="runs-tbody"></tbody>
+      </table>
+      <p class="hint" id="runs-empty-hint" style="display:none">No saved runs yet. <a href="#" id="runs-empty-new">Configure one</a>.</p>
+    </section>
+
+    <section id="view-configure" style="display:none">
+      <h1>Configure &amp; run a simulation</h1>
+      <p class="hint">Computed locally via WebAssembly — no server, no upload. A full run is ~20000 time steps and typically takes a few seconds to a couple of minutes depending on your device.</p>
+      <form id="configure-form"></form>
+      <button type="submit" form="configure-form">Run simulation</button>
+    </section>
+
+    <section id="view-progress" style="display:none">
+      <h1>Running…</h1>
+      <div class="progress-outer"><div class="progress-inner" id="progress-bar" style="width:0%"></div></div>
+      <p id="progress-text" class="hint"></p>
+      <p id="progress-error" class="error"></p>
+    </section>
+
+    <section id="view-results" style="display:none">
+      <h1>Results <code id="results-run-id"></code></h1>
+      <p class="error" id="results-save-warning"></p>
+
+      <section>
+        <h2>Configured parameters</h2>
+        <div class="param-groups" id="results-param-groups"></div>
+      </section>
+
+      <section>
+        <h2>Computed quantities</h2>
+        <table class="params-table" id="computed-table">
+          <tbody><tr><td colspan="2" class="hint">loading…</td></tr></tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Wavepacket evolution</h2>
+        <div class="controls">
+          <button id="play-btn" type="button">Play</button>
+          <input type="range" id="step-slider" min="0" max="0" value="0" step="1">
+          <span id="step-label"></span>
+          <label><input type="checkbox" id="toggle-reim"> show Re/Im</label>
+        </div>
+        <div id="paq-plot" class="plot"></div>
+      </section>
+
+      <section>
+        <h2>Momentum-space wavepacket</h2>
+        <div id="momenta-plot" class="plot"></div>
+      </section>
+
+      <section>
+        <h2>Transmission coefficient: numeric vs. analytic Eckart solution</h2>
+        <div id="transmission-plot" class="plot"></div>
+      </section>
+
+      <section>
+        <h2>Initial setup</h2>
+        <div class="grid2">
+          <div id="pot-plot" class="plot"></div>
+          <div id="paq0-plot" class="plot"></div>
+          <div id="gaussp-plot" class="plot"></div>
+          <div id="gaussE-plot" class="plot"></div>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+  <script src="param-spec.js"></script>
+  <script src="idb.js"></script>
+  <script src="app.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

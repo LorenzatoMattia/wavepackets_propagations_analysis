@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}Runs — M_LARA{% endblock %}
+{% block content %}
+<h1>Runs</h1>
+{% if not runs %}
+  <p>No runs yet. <a href="{{ url_for('configure') }}">Configure one</a>.</p>
+{% else %}
+<table class="runs-table">
+  <thead>
+    <tr><th>Run</th><th>Status</th><th>Collision energy (cm-1)</th><th>Started</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for r in runs %}
+    <tr>
+      <td>
+        <div class="run-name-row">
+          <span class="run-name">{{ r.display_name or r.run_id }}</span>
+          <details class="rename-details">
+            <summary class="icon-btn" title="Rename" aria-label="Rename run">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+            </summary>
+            <form method="post" action="{{ url_for('rename_run', run_id=r.run_id) }}" class="rename-form">
+              <input type="text" name="display_name" value="{{ r.display_name or '' }}" placeholder="{{ r.run_id }}">
+              <button type="submit" class="icon-btn" title="Save name" aria-label="Save name">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+            </form>
+          </details>
+        </div>
+        <code class="run-id-hint">{{ r.run_id }}</code>
+      </td>
+      <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+      <td>{{ r.params.usrecol if r.params else '' }}</td>
+      <td>{{ r.started_at }}</td>
+      <td>
+        {% if r.status == 'running' %}
+          <a href="{{ url_for('progress', run_id=r.run_id) }}">progress</a>
+        {% else %}
+          <a href="{{ url_for('results', run_id=r.run_id) }}">results</a>
+        {% endif %}
+        <form method="post" action="{{ url_for('delete_run', run_id=r.run_id) }}" style="display:inline"
+              onsubmit="return confirm('Delete this run and all its output files?')">
+          <button type="submit" class="icon-btn icon-danger" title="Delete run" aria-label="Delete run">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+          </button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

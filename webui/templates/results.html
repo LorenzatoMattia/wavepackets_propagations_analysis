@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block title %}Results — M_LARA{% endblock %}
+{% block head %}
+<script src="{{ url_for('static', filename='plotly.min.js') }}"></script>
+{% endblock %}
+{% block content %}
+<h1>Results <code>{{ run_id }}</code></h1>
+<p class="hint">status: <b>{{ meta.status }}</b></p>
+
+<section>
+  <h2>Configured parameters</h2>
+  <div class="param-groups">
+    {% for group in groups %}
+    <fieldset>
+      <legend>{{ group.name }}</legend>
+      <table class="params-table">
+        <tbody>
+          {% for f in group.fields %}
+          {% set value = meta.params.get(f.key) %}
+          <tr>
+            <td>{{ f.label }}</td>
+            <td>{{ value if value is not none else 'auto' }} {{ f.unit }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </fieldset>
+    {% endfor %}
+  </div>
+</section>
+
+<section>
+  <h2>Wavepacket evolution</h2>
+  <div class="controls">
+    <button id="play-btn">Play</button>
+    <input type="range" id="step-slider" min="0" max="0" value="0" step="1">
+    <span id="step-label"></span>
+    <label><input type="checkbox" id="toggle-reim"> show Re/Im</label>
+  </div>
+  <div id="paq-plot" class="plot"></div>
+</section>
+
+<section>
+  <h2>Momentum-space wavepacket</h2>
+  <div id="momenta-plot" class="plot"></div>
+</section>
+
+<section>
+  <h2>Transmission coefficient: numeric vs. analytic Eckart solution</h2>
+  <div id="transmission-plot" class="plot"></div>
+</section>
+
+<section>
+  <h2>Initial setup</h2>
+  <div class="grid2">
+    <div id="pot-plot" class="plot"></div>
+    <div id="paq0-plot" class="plot"></div>
+    <div id="gaussp-plot" class="plot"></div>
+    <div id="gaussE-plot" class="plot"></div>
+  </div>
+</section>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+<script>
+  initResultsPage({{ run_id | tojson }}, {{ meta.params | tojson }});
+</script>
+{% endblock %}

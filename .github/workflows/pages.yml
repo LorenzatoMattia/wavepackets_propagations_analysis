@@ -1,0 +1,63 @@
+# Tests, builds the WASM engine from docs/engine/engine.c, and deploys the
+# static browser build in docs/ to GitHub Pages.
+name: Deploy browser build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Python tests
+        run: |
+          pip install -r requirements.txt -r requirements-dev.txt
+          pytest -q
+
+      - name: Native compile check of the engine
+        run: gcc -fsyntax-only -Wall -DNATIVE_TEST docs/engine/engine.c
+
+      - uses: mymindstorm/setup-emsdk@v16
+        with:
+          version: "6.0.10"
+      - name: Build WASM engine
+        run: sh docs/engine/build.sh
+
+      - name: Check build outputs
+        run: test -s docs/engine.js && test -s docs/engine.wasm
+
+      - if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v6
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

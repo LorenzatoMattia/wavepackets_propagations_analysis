@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}Run in progress — M_LARA{% endblock %}
+{% block content %}
+<h1>Run <code>{{ run_id }}</code></h1>
+<div class="progress-outer"><div id="progress-bar" class="progress-inner" style="width:0%"></div></div>
+<p id="progress-text">Starting…</p>
+<p><a id="results-link" href="{{ url_for('results', run_id=run_id) }}" style="display:none">View results</a></p>
+<details>
+  <summary>stdout tail</summary>
+  <pre id="stdout-tail"></pre>
+</details>
+
+<script>
+const runId = {{ run_id | tojson }};
+const bar = document.getElementById('progress-bar');
+const text = document.getElementById('progress-text');
+const resultsLink = document.getElementById('results-link');
+
+const stdoutTail = document.getElementById('stdout-tail');
+
+async function poll() {
+  const res = await fetch(`/api/runs/${runId}/status`);
+  const s = await res.json();
+  const pct = Math.round(s.progress * 100);
+  bar.style.width = pct + '%';
+  text.textContent = `${s.status} — step ${s.steps_done} / ${s.ntimes} (${pct}%)`;
+
+  const stdoutRes = await fetch(`/api/runs/${runId}/stdout`);
+  stdoutTail.textContent = await stdoutRes.text();
+
+  if (s.status === 'completed' || s.status === 'failed') {
+    resultsLink.style.display = 'inline';
+    if (s.status === 'failed') {
+      text.textContent += ' — run failed, check stdout below';
+    }
+    return;
+  }
+  setTimeout(poll, 1500);
+}
+poll();
+</script>
+{% endblock %}
