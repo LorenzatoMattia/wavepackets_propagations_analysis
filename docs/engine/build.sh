@@ -17,7 +17,7 @@ emcc engine.c -O3 -DNDEBUG \
   -sEXPORT_NAME=createEngineModule \
   -sENVIRONMENT=worker \
   -sEXPORTED_FUNCTIONS=_malloc,_free \
-  -sEXPORTED_RUNTIME_METHODS=ccall,cwrap \
+  -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,HEAPF64 \
   -o ../engine.js
 
 echo "Built docs/engine.js + docs/engine.wasm"
