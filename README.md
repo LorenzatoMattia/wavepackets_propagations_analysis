@@ -8,7 +8,7 @@ front ends:
   in C and compiled to WebAssembly (`docs/engine/engine.c`), so a simulation
   can be configured and run entirely client-side, with no server at all.
   **Live at <https://lorenzatomattia.github.io/wavepackets_propagations_analysis/>.**
-  Saved runs live in the visitor's own browser (IndexedDB) — nothing is
+  Saved runs live in the visitor's own browser (IndexedDB), nothing is
   uploaded anywhere.
 - **`webui/`** — a local Flask app that drives the original compiled Fortran
   simulation (`mlara_win.exe`) and displays results with Plotly. Requires
@@ -17,8 +17,7 @@ front ends:
 
 ## Credits
 
-The physics (the Fortran program `barreritafluxexpenmomchebcontabsmod.f`,
-the split-operator/Eckart-barrier/absorbing-boundary model it implements) 
+The physics (the Fortran program, the split-operator/Eckart-barrier/absorbing-boundary model it implements) 
 is by **Manuel Lara Garrido and Octavio Roncero Villa**, course material for
 the EM-TCCM Master (Madrid, 2021). The Fortran source and its compiled
 binary are not included in this repository; no open-source license is
@@ -48,34 +47,54 @@ cd .. && python -m http.server
 
 ## Running the local (Flask) app
 
-Put the Fortran program in `fortran/` (git-ignored):
+The `webui/` directory contains a local Flask interface for the original Fortran simulation.
 
-```
+**This component cannot be run from this repository alone.** The original Fortran source code, 
+compiled binary, and associated FFTW3/runtime files are not distributed with this repository. 
+They must be obtained separately by users who are authorized to use the original Fortran program.
+
+If you have the required files, place them in the `fortran/` directory (git-ignored):
+
+```text
 fortran/
-  barreritafluxexpenmomchebcontabsmod.f   locales.common.h   locales.parameter.h
-  fftw3.f   mlara_win.exe   libfftw3-3.dll   libfftw3.a
+  barreritafluxexpenmomchebcontabsmod.f
+  locales.common.h
+  locales.parameter.h
+  fftw3.f
+  mlara_win.exe
+  libfftw3-3.dll
+  libfftw3.a
 ```
 
-then:
+Then install the Python dependencies and start the Flask application:
 
-```
+```bash
 pip install -r requirements.txt
 cd webui
 python app.py
 ```
 
-Opens `http://127.0.0.1:5000/` automatically. `mlara_win.exe` is a Windows
-binary dynamically linked against `libfftw3-3.dll` (must sit next to the
-exe) and `libgfortran-5.dll` (install a MinGW-w64 gfortran runtime if you
-don't already have one, e.g. via MSYS2).
+The application will be available at:
 
-Rebuilding `mlara_win.exe` from source, against a Windows/MinGW build of
-FFTW3:
-
+```text
+http://127.0.0.1:5000/
 ```
+
+`mlara_win.exe` is a Windows binary dynamically linked against `libfftw3-3.dll`, 
+which must be located next to the executable. It also requires the `libgfortran-5.dll` runtime; 
+a MinGW-w64 gfortran runtime may be required if it is not already installed.
+
+### Rebuilding the Fortran executable
+
+If you have the original Fortran source and a Windows/MinGW build of FFTW3, the executable can be rebuilt with:
+
+```bash
 cd fortran
 gfortran barreritafluxexpenmomchebcontabsmod.f -lfftw3 -o mlara_win.exe
 ```
+
+The `webui/` application is provided as a local interface for the original Fortran implementation; 
+the browser-based `docs/` application is the self-contained, publicly runnable version of the project.
 
 ## Tests
 
