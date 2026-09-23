@@ -17,8 +17,8 @@ front ends:
 
 ## Credits
 
-The physics — the Fortran program `barreritafluxexpenmomchebcontabsmod.f`,
-the split-operator/Eckart-barrier/absorbing-boundary model it implements —
+The physics (the Fortran program `barreritafluxexpenmomchebcontabsmod.f`,
+the split-operator/Eckart-barrier/absorbing-boundary model it implements) 
 is by **Manuel Lara Garrido and Octavio Roncero Villa**, course material for
 the EM-TCCM Master (Madrid, 2021). The Fortran source and its compiled
 binary are not included in this repository; no open-source license is
