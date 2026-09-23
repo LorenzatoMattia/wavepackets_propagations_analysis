@@ -13,6 +13,7 @@
 - WASM engine: with emsdk activated, run `docs/engine/build.sh`. It writes `docs/engine.js` and `docs/engine.wasm`.
 - Fortran: `cd fortran && gfortran barreritafluxexpenmomchebcontabsmod.f -lfftw3 -o mlara_win.exe`
 - Tests: `pip install -r requirements-dev.txt`, then `pytest` (webui modules are imported flat via `tests/conftest.py`).
+- Release: bump `VERSION` (semver) and the two `V<version>` strings in `docs/index.html` (`tests/test_version.py` enforces they match; the webui reads `VERSION`), commit on `main`, then `git tag -a v<version>` + `gh release create v<version>`.
 
 ## Invariants
 - `docs/engine/engine.c` must stay numerically consistent with the Fortran output. Any change to the physics or numerics needs a comparison run against `mlara_win.exe`.

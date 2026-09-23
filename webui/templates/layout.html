@@ -4,15 +4,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Wavepacket Propagation Analysis{%
-    endblock %}</title>
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   {% block head %}{% endblock %}
 </head>
 
 <body>
   <header class="topbar">
-    <a class="brand" href="{{ url_for('index') }}">Wavepacket Propagation Analysis - Manuel Lara Garrido</a>
+    <a class="brand" href="{{ url_for('index') }}">{{ app_name }} - Manuel Lara Garrido</a>
     <nav>
       <a href="{{ url_for('index') }}">Runs</a>
       <a href="{{ url_for('configure') }}">New run</a>

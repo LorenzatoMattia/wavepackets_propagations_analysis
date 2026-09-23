@@ -5,6 +5,7 @@ Opens http://127.0.0.1:5000/ automatically.
 """
 import threading
 import webbrowser
+from pathlib import Path
 
 from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
 
@@ -12,8 +13,19 @@ import parsers
 import runner
 from nmlwriter import BUILD_INFO, grouped_fields
 
+# Single source of the release version (repo-root VERSION, tagged vX.Y.Z on
+# GitHub); docs/index.html carries the same string, kept in sync by
+# tests/test_version.py.
+VERSION = (Path(__file__).resolve().parent.parent / "VERSION").read_text().strip()
+APP_NAME = f"Wavepacket Propagation Analysis - V{VERSION}"
+
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+
+@app.context_processor
+def inject_app_name():
+    return {"app_name": APP_NAME}
 
 
 @app.route("/")
