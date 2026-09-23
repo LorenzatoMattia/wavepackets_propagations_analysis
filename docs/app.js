@@ -66,29 +66,78 @@ function loadInitConditions(data) {
   }).join('');
 }
 
-function loadTransmission(data) {
+// Relative |a(E)|² threshold below which the flux-method T(E) is not shown:
+// there the initial wavepacket has ~no energy content, so the flux ratio is
+// noise divided by noise (the Fortran source warns about "very high numbers
+// due to numerical errors"). 1e-3 keeps every shown point within [0, 1.1]
+// and within 3e-3 of the analytic curve on the reference runs.
+const ENERGY_CONTENT_THRESHOLD = 1e-3;
+
+// values[i] where the initial wavepacket's energy weight |a(E)|² (gaussE.prob,
+// linearly interpolated onto the ascending `energy` grid) is at least
+// relThreshold of its maximum, null elsewhere (Plotly draws a gap).
+function maskByEnergyContent(energy, values, gaussE, relThreshold = ENERGY_CONTENT_THRESHOLD) {
+  if (!gaussE || !gaussE.energy || gaussE.energy.length < 2) return Array.from(values);
+  const ge = gaussE.energy;
+  const gp = gaussE.prob;
+  let wmax = 0;
+  for (let i = 0; i < gp.length; i++) if (gp[i] > wmax) wmax = gp[i];
+  const cut = relThreshold * wmax;
+  const last = ge.length - 1;
+  const out = new Array(values.length);
+  let j = 0;
+  for (let i = 0; i < energy.length; i++) {
+    const e = energy[i];
+    while (j < last - 1 && ge[j + 1] < e) j++;
+    let w;
+    if (e <= ge[0]) w = gp[0];
+    else if (e >= ge[last]) w = gp[last];
+    else w = gp[j] + (e - ge[j]) / (ge[j + 1] - ge[j]) * (gp[j + 1] - gp[j]);
+    out[i] = w >= cut ? values[i] : null;
+  }
+  return out;
+}
+
+// Classical limit of T(E): 0 below the barrier top V_max, 1 above.
+function classicalStep(vmax, xmax) {
+  return {
+    x: [0, vmax, vmax, Math.max(xmax, vmax)], y: [0, 0, 1, 1], mode: 'lines',
+    name: `classical step (V<sub>max</sub> = ${Math.round(vmax)} cm⁻¹)`,
+    line: { color: '#9ca3af', dash: 'dash', width: 1.5 },
+  };
+}
+
+function potentialMax(overview) {
+  const pot = overview && overview.pot && overview.pot.potential;
+  if (!pot || !pot.length) return null;
+  let vmax = -Infinity;
+  for (let i = 0; i < pot.length; i++) if (pot[i] > vmax) vmax = pot[i];
+  return vmax;
+}
+
+function renderTransmission(data, overview) {
   if (!data) return;
   const traces = [];
+  let xmax = 0;
   if (data.analytic) {
     traces.push({ x: data.analytic.energy, y: data.analytic.transmission, mode: 'lines', name: 'analytic (Eckart)' });
   }
   if (data.numeric) {
-    // Runs saved before the column rename carry trans_left (= T) /
-    // trans_right (= R) instead of transmission / reflection.
+    // Runs saved before the column rename carry trans_left (= T).
     const trans = data.numeric.transmission ?? data.numeric.trans_left;
-    const reflec = data.numeric.reflection ?? data.numeric.trans_right;
-    traces.push({ x: data.numeric.energy, y: trans, mode: 'lines', name: `numeric T, step ${data.final_step}` });
-    traces.push({ x: data.numeric.energy, y: reflec, mode: 'lines', name: 'numeric R', visible: 'legendonly' });
+    const shown = maskByEnergyContent(data.numeric.energy, trans, overview && overview.gaussE);
+    shown.forEach((t, i) => { if (t !== null) xmax = Math.max(xmax, data.numeric.energy[i]); });
+    traces.push({ x: data.numeric.energy, y: shown, mode: 'lines', name: `numeric (flux), step ${data.final_step}` });
   }
-  if (traces.length) {
-    // Far from the sampled collision-energy region the wavepacket has
-    // ~zero amplitude, so the flux-ratio estimate is dividing noise by
-    // noise and can blow up to huge spurious values; T is physically in
-    // [0,1], so clamp the axis.
-    const layout = plotlyLayout('Transmission coefficient T(E)', 'E (cm-1)', 'T');
-    layout.yaxis.range = [0, 1.1];
-    Plotly.newPlot('transmission-plot', traces, layout);
-  }
+  const vmax = potentialMax(overview);
+  if (vmax !== null) xmax = Math.max(xmax, 2 * vmax);
+  if (vmax !== null && vmax > 0) traces.push(classicalStep(vmax, 1.05 * xmax));
+  if (!traces.length) return;
+
+  const layout = plotlyLayout('Transmission coefficient T(E)', 'E (cm⁻¹)', 'T(E)');
+  layout.yaxis.range = [0, 1.1];
+  if (xmax > 0) layout.xaxis.range = [0, 1.05 * xmax];
+  Plotly.newPlot('transmission-plot', traces, layout);
 }
 
 // Vertical reference lines marking physically meaningful boundaries on the
@@ -145,7 +194,7 @@ function initResultsPage(runData) {
   stopResultsPlayback();
   renderParamGroups(runData.params);
   renderOverviewCharts(runData.overview);
-  loadTransmission(runData.transmission);
+  renderTransmission(runData.transmission, runData.overview);
   loadInitConditions(runData.initConditions);
 
   const slider = document.getElementById('step-slider');
